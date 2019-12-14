@@ -1,0 +1,20 @@
+function [R_train_mean, R_test_mean, R_train, R_test] = my_cv(z, y, k)
+    R_test = [];
+    R_train = [];
+    N = length(z);
+    for range = 1:k
+        test_start = round((range - 1) * N / k + 1);
+        test_end = round(range * N / k);
+        z_test = z(test_start:test_end, :);
+        y_test = y(test_start:test_end, :);
+        z_train = z;
+        z_train(test_start:test_end, :) = [];
+        y_train = y;
+        y_train(test_start:test_end, :) = [];
+        %             z_temp=z_train.^p+1e-6*rand(size(z_train));
+        [w, R_train(range)]= my_ls(z_train, y_train);
+        y_pred = z_test*w;
+        R_test(range) = (sum((y_pred - y_test) .^2)) / length(y_test);       
+    end
+    R_train_mean = mean(R_train);
+    R_test_mean = mean(R_test);
